@@ -7,16 +7,26 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import PersonService from "../model/PersonService";
 import MessageBox from "sap/m/MessageBox";
 import MessageToast from "sap/m/MessageToast";
+import Localization from "sap/base/i18n/Localization";
+import ResourceModel from "sap/ui/model/resource/ResourceModel";
 
 export default class PersonList extends Controller 
 {
   private _router!: Router;
 
+  /**
+   * Initializes the list controller and router reference.
+   */
   public onInit(): void 
   {
     this._router = UIComponent.getRouterFor(this);
   }
 
+  /**
+   * Navigates to the detail route for the pressed list item.
+   *
+   * @param oEvent Item press event.
+   */
   public onItemPress(oEvent: Event): void 
   {
     const oContext = (oEvent.getSource() as any).getBindingContext?.();
@@ -29,9 +39,15 @@ export default class PersonList extends Controller
     this._router.navTo("detail", { id: oPerson.id });
   }
 
+  /**
+   * Updates the selected person ID in the shared model.
+   *
+   * @param oEvent Selection change event.
+   */
   public onSelectionChange(oEvent: Event): void 
   {
-    const oModel = this.getOwnerComponent()?.getModel() as JSONModel | undefined;
+    const oModel = this._getAppModel();
+
     if (!oModel) 
     {
       return;
@@ -44,19 +60,48 @@ export default class PersonList extends Controller
       return;
     }
 
-    const selectedPerson = (selectedItem.getBindingContext?.()?.getObject?.() ??
-      null) as Person | null;
+    const selectedPerson = (selectedItem.getBindingContext?.()?.getObject?.() ?? null) as Person | null;
     oModel.setProperty("/selectedPersonId", selectedPerson?.id ?? "");
   }
 
+  /**
+   * Navigates to the create form.
+   */
   public onCreate(): void 
   {
     this._router.navTo("detail", { id: "new" });
   }
 
+  /**
+   * Applies a new application language and persists the preference.
+   *
+   * @param oEvent Language selection change event.
+   */
+  public onLanguageChange(oEvent: Event): void
+  {
+    const selectedLanguage = ((oEvent as any).getParameter("selectedItem")?.getKey?.() ?? "de") as string;
+    Localization.setLanguage(selectedLanguage);
+    const i18nModel = new ResourceModel({
+      bundleName: "person.app.i18n.i18n",
+      bundleLocale: selectedLanguage,
+      supportedLocales: ["de", ""],
+      fallbackLocale: "",
+    });
+    this.getOwnerComponent()?.setModel(i18nModel, "i18n");
+    window.localStorage.setItem("appLanguage", selectedLanguage);
+
+    const oModel = this._getAppModel();
+    oModel?.setProperty("/currentLanguage", selectedLanguage);
+  }
+
+  /**
+   * Deletes the currently selected person after confirmation and refreshes the list.
+   *
+   * @returns A promise that resolves when the delete flow is finished.
+   */
   public async onDelete(): Promise<void> 
   {
-    const oModel = this.getOwnerComponent()?.getModel() as JSONModel | undefined;
+    const oModel = this._getAppModel();
     if (!oModel) 
     {
       return;
@@ -84,6 +129,7 @@ export default class PersonList extends Controller
     }
 
     oModel.setProperty("/busy", true);
+
     try 
     {
       await PersonService.deletePerson(selectedPersonId);
@@ -100,5 +146,15 @@ export default class PersonList extends Controller
     {
       oModel.setProperty("/busy", false);
     }
+  }
+
+  /**
+   * Returns the shared application JSON model from the owner component.
+   *
+   * @returns The app model, if available.
+   */
+  private _getAppModel(): JSONModel | undefined
+  {
+    return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
   }
 }

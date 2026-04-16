@@ -1,6 +1,7 @@
 <mvc:View
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
 	controllerName="person.app.controller.PersonList"
 >
 	<Page
@@ -20,6 +21,18 @@
 						<OverflowToolbar>
 							<Title text="{i18n>personsTitle}" />
 							<ToolbarSpacer />
+							<Label text="{i18n>language}" labelFor="languageSelect" />
+							<Select
+								id="languageSelect"
+								selectedKey="{/currentLanguage}"
+								change="onLanguageChange"
+								width="9rem"
+							>
+								<items>
+									<core:Item key="de" text="{i18n>languageGerman}" />
+									<core:Item key="en" text="{i18n>languageEnglish}" />
+								</items>
+							</Select>
 							<Button text="{i18n>create}" type="Emphasized" press="onCreate" />
 							<Button
 								text="{i18n>delete}"

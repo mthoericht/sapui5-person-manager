@@ -99,3 +99,40 @@ This enables schema-aware validation and editor support.
 - The app uses a small `ApiClient` class (`webapp/api/ApiClient.ts`) to centralize HTTP calls.
 - `PersonService` contains person-specific API operations (`get`, `create`, `update`, `delete`).
 - The list view width is intentionally constrained for better readability on large screens.
+
+## Internationalization (i18n) and language switching
+
+The UI supports **German** and **English**.
+
+### Where the texts are stored
+
+- `webapp/i18n/i18n_de.properties` – German translations (`*_de.properties`)
+- `webapp/i18n/i18n.properties` – default translations (English base bundle)
+
+### `supportedLocales` / `fallbackLocale` (important)
+
+UI5 loads i18n files using a **fallback chain**. Without the right configuration, a `de…` locale
+can skip `i18n_de.properties` and not resolve the expected texts.
+
+To keep the setup simple and avoid redundancy, the app is configured with:
+
+- `supportedLocales: ["de", ""]` (`""` = base bundle `i18n.properties`)
+- `fallbackLocale: ""` (default fallback is the base bundle)
+
+Configured in:
+
+- `webapp/manifest.json` (`sap.app.i18n` and `sap.ui5.models.i18n.settings`)
+- runtime `ResourceModel` creation in `webapp/Component.ts` and `webapp/controller/PersonList.controller.ts`
+
+### How language switching works in the UI
+
+- Language dropdown in `webapp/view/PersonList.view.xml` (`Select` bound to `/currentLanguage`)
+- On change in `PersonList.controller.ts`:
+  - `Localization.setLanguage(...)`
+  - the component `i18n` `ResourceModel` is recreated for the selected language
+  - the selection is persisted as `localStorage["appLanguage"]`
+
+### Troubleshooting
+
+- If the app always starts in English, check `localStorage["appLanguage"]` (for example `en`).
+  Remove the key or pick **German** in the dropdown, then reload.

@@ -11,6 +11,9 @@ export default class PersonDetail extends Controller
 {
   private _router!: Router;
 
+  /**
+   * Initializes the detail controller and attaches route matching handling.
+   */
   public onInit(): void 
   {
     this._router = UIComponent.getRouterFor(this);
@@ -21,6 +24,12 @@ export default class PersonDetail extends Controller
     }
   }
 
+  /**
+   * Loads or initializes the selected person depending on route parameters.
+   *
+   * @param oEvent Route match event.
+   * @returns A promise that resolves when route handling is completed.
+   */
   private async _onRouteMatched(oEvent: any): Promise<void> 
   {
     const sId = oEvent.getParameter("arguments")?.id as string | undefined;
@@ -29,7 +38,8 @@ export default class PersonDetail extends Controller
       return;
     }
 
-    const oModel = this.getOwnerComponent()?.getModel() as JSONModel | undefined;
+    const oModel = this._getAppModel();
+
     if (!oModel) 
     {
       return;
@@ -63,14 +73,22 @@ export default class PersonDetail extends Controller
     }
   }
 
+  /**
+   * Navigates back to the list route.
+   */
   public onNavBack(): void 
   {
     this._router.navTo("list");
   }
 
+  /**
+   * Validates and persists the current person, then refreshes list state.
+   *
+   * @returns A promise that resolves when save handling is completed.
+   */
   public async onSave(): Promise<void> 
   {
-    const oModel = this.getOwnerComponent()?.getModel() as JSONModel | undefined;
+    const oModel = this._getAppModel();
     if (!oModel) 
     {
       MessageToast.show("Model nicht verfügbar");
@@ -126,6 +144,8 @@ export default class PersonDetail extends Controller
         });
       oModel.setProperty("/selectedPerson", oSaved);
       oModel.setProperty("/isCreating", false);
+      
+      //refresh the list
       const persons = await PersonService.getPersons();
       oModel.setProperty("/persons", persons);
       oModel.setProperty("/selectedPersonId", oSaved.id);
@@ -143,8 +163,24 @@ export default class PersonDetail extends Controller
     }
   }
 
+  /**
+   * Checks whether an email address has a basic valid format.
+   *
+   * @param email Email string to validate.
+   * @returns True when the email format is valid.
+   */
   private _isValidEmail(email: string): boolean 
   {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  /**
+   * Returns the shared application JSON model from the owner component.
+   *
+   * @returns The app model, if available.
+   */
+  private _getAppModel(): JSONModel | undefined
+  {
+    return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
   }
 }

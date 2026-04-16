@@ -3,6 +3,11 @@
   "sap.app": {
     "id": "person.app",
     "type": "application",
+    "i18n": {
+      "bundleName": "person.app.i18n.i18n",
+      "supportedLocales": ["de", ""],
+      "fallbackLocale": ""
+    },
     "title": "Person App",
     "applicationVersion": {
       "version": "1.0.0"
@@ -42,7 +47,9 @@
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
-          "bundleName": "person.app.i18n.i18n"
+          "bundleName": "person.app.i18n.i18n",
+          "supportedLocales": ["de", ""],
+          "fallbackLocale": ""
         }
       }
     },
