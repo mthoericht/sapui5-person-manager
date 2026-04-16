@@ -18,4 +18,3 @@ server:
   customMiddleware:
     - name: ui5-tooling-transpile-middleware
       afterMiddleware: compression
-

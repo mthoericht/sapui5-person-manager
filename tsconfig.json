@@ -8,11 +8,8 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "rootDir": "./webapp",
-    "types": [
-      "openui5"
-    ],
+    "types": ["openui5"],
     "composite": true
   },
   "include": ["./webapp/**/*"]
 }
-

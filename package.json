@@ -6,9 +6,11 @@
   "scripts": {
     "start:all": "concurrently \"npm:mock\" \"npm:start\"",
     "start": "ui5 serve --port 8080 -o index.html",
-    "mock": "json-server --watch mock/db.json --port 3001",    
+    "mock": "json-server --watch mock/db.json --port 3001",
     "build": "ui5 build --clean-dest",
-    "ts-typecheck": "tsc --noEmit"
+    "ts-typecheck": "tsc --noEmit",
+    "lint": "eslint webapp --ext .ts,.js",
+    "lint:fix": "eslint webapp --ext .ts,.js --fix"
   },
   "repository": {
     "type": "git",
@@ -24,8 +26,11 @@
   "homepage": "https://github.com/mthoericht/sapui5-playground#readme",
   "devDependencies": {
     "@types/openui5": "^1.146.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
     "@ui5/cli": "^4.0.51",
     "concurrently": "^9.2.1",
+    "eslint": "^9.38.0",
     "json-server": "^1.0.0-beta.15",
     "typescript": "^6.0.2",
     "ui5-tooling-transpile": "^3.11.0"
