@@ -1,0 +1,104 @@
+webapp/Component.ts(1,25): error TS2307: Cannot find module 'sap/ui/core/UIComponent' or its corresponding type declarations.
+webapp/Component.ts(2,23): error TS2307: Cannot find module 'sap/ui/model/json/JSONModel' or its corresponding type declarations.
+webapp/Component.ts(18,8): error TS2339: Property 'setModel' does not exist on type 'Component'.
+webapp/Component.ts(20,8): error TS2339: Property 'getRouter' does not exist on type 'Component'.
+webapp/Component.ts(26,8): error TS2339: Property 'getModel' does not exist on type 'Component'.
+webapp/Component.ts(29,9): error TS2339: Property 'getModel' does not exist on type 'Component'.
+webapp/Component.ts(31,9): error TS2339: Property 'getModel' does not exist on type 'Component'.
+webapp/controller/PersonDetail.controller.ts(1,24): error TS2307: Cannot find module 'sap/ui/core/mvc/Controller' or its corresponding type declarations.
+webapp/controller/PersonDetail.controller.ts(2,24): error TS2307: Cannot find module 'sap/ui/base/Event' or its corresponding type declarations.
+webapp/controller/PersonDetail.controller.ts(3,26): error TS2307: Cannot find module 'sap/m/MessageToast' or its corresponding type declarations.
+webapp/controller/PersonDetail.controller.ts(8,20): error TS2503: Cannot find namespace 'sap'.
+webapp/controller/PersonDetail.controller.ts(11,18): error TS2304: Cannot find name 'sap'.
+webapp/controller/PersonDetail.controller.ts(21,8): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(24,9): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(27,9): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(29,9): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(38,26): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(44,32): error TS2339: Property 'byId' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(44,58): error TS2503: Cannot find namespace 'sap'.
+webapp/controller/PersonDetail.controller.ts(45,31): error TS2339: Property 'byId' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(45,56): error TS2503: Cannot find namespace 'sap'.
+webapp/controller/PersonDetail.controller.ts(46,28): error TS2339: Property 'byId' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(46,50): error TS2503: Cannot find namespace 'sap'.
+webapp/controller/PersonDetail.controller.ts(64,8): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(67,9): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(69,9): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonDetail.controller.ts(76,9): error TS2339: Property 'getModel' does not exist on type 'PersonDetail'.
+webapp/controller/PersonList.controller.ts(1,24): error TS2307: Cannot find module 'sap/ui/core/mvc/Controller' or its corresponding type declarations.
+webapp/controller/PersonList.controller.ts(2,24): error TS2307: Cannot find module 'sap/ui/base/Event' or its corresponding type declarations.
+webapp/controller/PersonList.controller.ts(6,20): error TS2503: Cannot find namespace 'sap'.
+webapp/controller/PersonList.controller.ts(9,18): error TS2304: Cannot find name 'sap'.
+webapp/controller/PersonList.controller.ts(13,80): error TS2503: Cannot find namespace 'sap'.
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es5.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2016.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2018.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2019.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2021.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2022.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2023.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.dom.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.dom.iterable.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.dom.asynciterable.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.webworker.importscripts.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.scripthost.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.core.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.collection.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.generator.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.iterable.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.promise.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.proxy.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.reflect.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.symbol.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2016.array.include.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2016.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.arraybuffer.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.date.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.object.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.string.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2017.typedarrays.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2018.asyncgenerator.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2018.asynciterable.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2018.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2018.promise.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2018.regexp.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2019.array.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2019.object.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2019.string.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2019.symbol.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2019.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.bigint.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.date.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.promise.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.sharedmemory.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.string.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2020.number.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2021.promise.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2021.string.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2021.weakref.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2021.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2022.array.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2022.error.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2022.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2022.object.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2022.string.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2022.regexp.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2023.array.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2023.collection.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2023.intl.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.decorators.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.decorators.legacy.d.ts
+/Users/marcus/gitRoot/sapui5-playground/node_modules/typescript/lib/lib.es2023.full.d.ts
+/Users/marcus/gitRoot/sapui5-playground/webapp/model/Person.ts
+/Users/marcus/gitRoot/sapui5-playground/webapp/model/PersonService.ts
+/Users/marcus/gitRoot/sapui5-playground/webapp/Component.ts
+/Users/marcus/gitRoot/sapui5-playground/webapp/controller/PersonDetail.controller.ts
+/Users/marcus/gitRoot/sapui5-playground/webapp/controller/PersonList.controller.ts

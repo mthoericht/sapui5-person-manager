@@ -1,0 +1,23 @@
+{
+  "persons": [
+    {
+      "id": "p1",
+      "firstName": "Max",
+      "lastName": "Muster",
+      "email": "max.muster@example.com"
+    },
+    {
+      "id": "p2",
+      "firstName": "Erika",
+      "lastName": "Beispiel",
+      "email": "erika.beispiel@example.com"
+    },
+    {
+      "id": "p3",
+      "firstName": "Ali",
+      "lastName": "Khan",
+      "email": "ali.khan@example.com"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

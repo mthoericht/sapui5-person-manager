@@ -1,0 +1,43 @@
+<mvc:View
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	controllerName="person.app.controller.PersonDetail"
+>
+	<Page
+		title="{= ${/isCreating} ? ${i18n>createTitle} : ${i18n>detailTitle} }"
+		showNavButton="true"
+		navButtonPress="onNavBack"
+		busy="{/busy}"
+	>
+		<VBox class="sapUiResponsiveMargin sapUiContentPadding">
+			<Label text="{i18n>personId}" labelFor="detailIdText" />
+			<Text id="detailIdText" text="{/selectedPerson/id}" wrapping="false" />
+
+			<Label text="{i18n>firstName}" labelFor="firstNameInput" required="true" />
+			<Input id="firstNameInput" value="{/selectedPerson/firstName}" width="100%" />
+
+			<Label text="{i18n>lastName}" labelFor="lastNameInput" required="true" />
+			<Input id="lastNameInput" value="{/selectedPerson/lastName}" width="100%" />
+
+			<Label text="{i18n>email}" labelFor="emailInput" required="true" />
+			<Input id="emailInput" value="{/selectedPerson/email}" type="Email" width="100%" />
+
+			<HBox justifyContent="End" wrap="Wrap" class="sapUiSmallMarginTop">
+				<Button
+					text="{i18n>cancel}"
+					type="Transparent"
+					press="onNavBack"
+					enabled="{= !${/busy} }"
+				/>
+				<Button
+					class="sapUiSmallMarginBegin"
+					text="{i18n>save}"
+					type="Emphasized"
+					press="onSave"
+					enabled="{= !${/busy} }"
+				/>
+			</HBox>
+		</VBox>
+	</Page>
+</mvc:View>
+

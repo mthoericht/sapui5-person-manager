@@ -1,0 +1,33 @@
+{
+  "name": "sapui5-playground",
+  "version": "1.0.0",
+  "description": "playground for basic sapui5-functions",
+  "main": "index.js",
+  "scripts": {
+    "start:all": "concurrently \"npm:mock\" \"npm:start\"",
+    "start": "ui5 serve --port 8080 -o index.html",
+    "mock": "json-server --watch mock/db.json --port 3001",    
+    "build": "ui5 build --clean-dest",
+    "ts-typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mthoericht/sapui5-playground.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mthoericht/sapui5-playground/issues"
+  },
+  "homepage": "https://github.com/mthoericht/sapui5-playground#readme",
+  "devDependencies": {
+    "@types/openui5": "^1.146.0",
+    "@ui5/cli": "^4.0.51",
+    "concurrently": "^9.2.1",
+    "json-server": "^1.0.0-beta.15",
+    "typescript": "^6.0.2",
+    "ui5-tooling-transpile": "^3.11.0"
+  }
+}

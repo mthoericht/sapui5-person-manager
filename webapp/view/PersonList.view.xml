@@ -1,0 +1,57 @@
+<mvc:View
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns="sap.m"
+	controllerName="person.app.controller.PersonList"
+>
+	<Page
+		title="{i18n>personsTitle}"
+		showNavButton="false"
+		busy="{/busy}"
+	>
+		<content>
+			<VBox class="personListContainer sapUiResponsiveMargin sapUiContentPadding">
+				<Table
+					id="personTable"
+					items="{/persons}"
+					mode="SingleSelectLeft"
+					selectionChange="onSelectionChange"
+				>
+					<headerToolbar>
+						<OverflowToolbar>
+							<Title text="{i18n>personsTitle}" />
+							<ToolbarSpacer />
+							<Button text="{i18n>create}" type="Emphasized" press="onCreate" />
+							<Button
+								text="{i18n>delete}"
+								type="Negative"
+								press="onDelete"
+								enabled="{= !!${/selectedPersonId} }"
+							/>
+						</OverflowToolbar>
+					</headerToolbar>
+					<columns>
+						<Column>
+							<Text text="{i18n>firstName}" />
+						</Column>
+						<Column>
+							<Text text="{i18n>lastName}" />
+						</Column>
+						<Column>
+							<Text text="{i18n>email}" />
+						</Column>
+					</columns>
+					<items>
+						<ColumnListItem type="Navigation" press="onItemPress">
+							<cells>
+								<Text text="{firstName}" />
+								<Text text="{lastName}" />
+								<Text text="{email}" />
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>
+

@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.local/mock/persons.schema.json",
+  "title": "Mock Database Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["persons"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "persons": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "firstName", "lastName", "email"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 3
+          }
+        }
+      }
+    }
+  }
+}
+
