@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://example.local/mock/persons.schema.json",
-  "title": "Mock Database Schema",
+  "$id": "https://example.local/data/persons.schema.json",
+  "title": "Data Schema",
   "type": "object",
   "additionalProperties": false,
   "required": ["persons"],

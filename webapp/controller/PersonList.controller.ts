@@ -1,6 +1,5 @@
 import Controller from "sap/ui/core/mvc/Controller";
 import type Event from "sap/ui/base/Event";
-import type Element from "sap/ui/core/Element";
 import type { Person } from "../model/Person";
 import UIComponent from "sap/ui/core/UIComponent";
 import type Router from "sap/ui/core/routing/Router";
@@ -15,6 +14,7 @@ import MessageToast from "sap/m/MessageToast";
 import Localization from "sap/base/i18n/Localization";
 import ResourceModel from "sap/ui/model/resource/ResourceModel";
 import Table from "sap/m/Table";
+import { createTranslator } from "../util/i18nUtil";
 
 export default class PersonList extends Controller 
 {
@@ -51,7 +51,7 @@ export default class PersonList extends Controller
   }
 
   /**
-   * Updates the selected person ID in the shared model.
+   * Updates selected person IDs in the shared model.
    *
    * @param oEvent Selection change event.
    */
@@ -64,15 +64,13 @@ export default class PersonList extends Controller
       return;
     }
 
-    const selectedItem = (oEvent as any).getParameter("listItem");
-    if (!selectedItem) 
-    {
-      oModel.setProperty("/selectedPersonId", "");
-      return;
-    }
+    const oTable = (oEvent.getSource() as Table | undefined);
+    const selectedIds = (oTable?.getSelectedContexts?.() ?? [])
+      .map((context) => context.getObject() as Person)
+      .map((person) => person.id)
+      .filter(Boolean);
 
-    const selectedPerson = (selectedItem.getBindingContext?.()?.getObject?.() ?? null) as Person | null;
-    oModel.setProperty("/selectedPersonId", selectedPerson?.id ?? "");
+    oModel.setProperty("/selectedPersonIds", selectedIds);
   }
 
   /**
@@ -106,11 +104,11 @@ export default class PersonList extends Controller
   }
 
   /**
-   * Toggles sorting on the clicked table header field.
+   * Applies sorting when the sort field is changed in toolbar controls.
    *
-   * @param oEvent Header sort button press event.
+   * @param oEvent Sort field select change event.
    */
-  public onHeaderSortPress(oEvent: Event): void
+  public onSortFieldChange(oEvent: Event): void
   {
     const oModel = this._getAppModel();
     if (!oModel)
@@ -118,22 +116,25 @@ export default class PersonList extends Controller
       return;
     }
 
-    const headerSortButton = oEvent.getSource() as Element;
-    // Field requested by the clicked header button; fallback keeps sorting deterministic.
-    const requestedSortField = (headerSortButton.data("sortField") as string | undefined) ?? "lastName";
-    const activeSortField = (oModel.getProperty("/sortField") as string) || "lastName";
+    const selectedSortField =
+      ((oEvent as any).getParameter("selectedItem")?.getKey?.() as string | undefined) ?? "lastName";
+    oModel.setProperty("/sortField", selectedSortField);
+    this._applyTableState();
+  }
+
+  /**
+   * Toggles sorting direction (ascending/descending).
+   */
+  public onSortDirectionToggle(): void
+  {
+    const oModel = this._getAppModel();
+    if (!oModel)
+    {
+      return;
+    }
+
     const currentDescending = !!oModel.getProperty("/sortDescending");
-
-    if (requestedSortField === activeSortField)
-    {
-      oModel.setProperty("/sortDescending", !currentDescending);
-    }
-    else
-    {
-      oModel.setProperty("/sortField", requestedSortField);
-      oModel.setProperty("/sortDescending", false);
-    }
-
+    oModel.setProperty("/sortDescending", !currentDescending);
     this._applyTableState();
   }
 
@@ -160,7 +161,7 @@ export default class PersonList extends Controller
   }
 
   /**
-   * Deletes the currently selected person after confirmation and refreshes the list.
+   * Deletes all selected persons after confirmation and refreshes the list.
    *
    * @returns A promise that resolves when the delete flow is finished.
    */
@@ -172,16 +173,21 @@ export default class PersonList extends Controller
       return;
     }
 
-    const selectedPersonId = oModel.getProperty("/selectedPersonId") as string;
-    if (!selectedPersonId) 
+    const translate = createTranslator(this.getOwnerComponent());
+    const selectedPersonIds = (oModel.getProperty("/selectedPersonIds") as string[] | undefined) ?? [];
+    if (selectedPersonIds.length === 0) 
     {
-      MessageToast.show("Bitte zuerst eine Person auswählen");
+      MessageToast.show(translate("selectAtLeastOnePerson", "Bitte zuerst mindestens eine Person auswählen"));
       return;
     }
 
+    const confirmText = selectedPersonIds.length === 1
+      ? translate("confirmDeleteSingle", "Person wirklich löschen?")
+      : translate("confirmDeleteMultiple", "Ausgewählte Personen wirklich löschen?");
+
     const confirmed = await new Promise<boolean>((resolve) => 
     {
-      MessageBox.confirm("Person wirklich löschen?", {
+      MessageBox.confirm(confirmText, {
         actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
         emphasizedAction: MessageBox.Action.CANCEL,
         onClose: (action) => resolve(action === MessageBox.Action.OK),
@@ -197,12 +203,15 @@ export default class PersonList extends Controller
 
     try 
     {
-      await PersonService.deletePerson(selectedPersonId);
+      await Promise.all(selectedPersonIds.map((id) => PersonService.deletePerson(id)));
       const persons = await PersonService.getPersons();
       oModel.setProperty("/persons", persons);
       this._applyTableState();
-      oModel.setProperty("/selectedPersonId", "");
-      MessageToast.show("Person gelöscht");
+      oModel.setProperty("/selectedPersonIds", []);
+      const successText = selectedPersonIds.length === 1
+        ? translate("deleteSuccessSingle", "Person gelöscht")
+        : translate("deleteSuccessMultiple", "Personen gelöscht");
+      MessageToast.show(successText);
     }
     catch (e) 
     {

@@ -2,7 +2,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Personen Liste & Detail (SAPUI5 + TypeScript)</title>
+    <title>Personen-Manager (SAPUI5)</title>
+    <style>
+      .visuallyHiddenHeading {
+        position: absolute;
+        left: -10000px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+    </style>
     <script
       id="sap-ui-bootstrap"
       src="resources/sap-ui-core.js"
@@ -15,11 +25,18 @@
     ></script>
   </head>
   <body class="sapUiBody" id="content">
-    <div
-      data-sap-ui-component
-      data-name="person.app"
-      data-id="personApp"
-      data-settings='{"id":"person.app"}'
-    ></div>
+    <main id="main-content">
+      <h1
+        class="visuallyHiddenHeading"
+      >
+        Person Manager
+      </h1>
+      <div
+        data-sap-ui-component
+        data-name="person.app"
+        data-id="personApp"
+        data-settings='{"id":"person.app"}'
+      ></div>
+    </main>
   </body>
 </html>

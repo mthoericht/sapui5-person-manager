@@ -7,6 +7,7 @@ import PersonService from "../model/PersonService";
 import type { Person, PersonDraft } from "../model/Person";
 import UIComponent from "sap/ui/core/UIComponent";
 import type Router from "sap/ui/core/routing/Router";
+import { createTranslator } from "../util/i18nUtil";
 
 export default class PersonDetail extends Controller 
 {
@@ -107,25 +108,56 @@ export default class PersonDetail extends Controller
     }
     const isCreating = !!oModel.getProperty("/isCreating");
 
-    const oFirstNameInput = this.byId("firstNameInput") as Input;
-    const oLastNameInput = this.byId("lastNameInput") as Input;
-    const oEmailInput = this.byId("emailInput") as Input;
-    const oGenderSelect = this.byId("genderSelect") as Select;
+    const oFirstNameInput: Input = this.byId("firstNameInput") as Input;
+    const oLastNameInput: Input = this.byId("lastNameInput") as Input;
+    const oEmailInput: Input = this.byId("emailInput") as Input;
+    const oGenderSelect: Select = this.byId("genderSelect") as Select;
+    const translate = createTranslator(this.getOwnerComponent());
 
     const sFirstName = oFirstNameInput.getValue().trim();
     const sLastName = oLastNameInput.getValue().trim();
     const sEmail = oEmailInput.getValue().trim();
     const sGender = oGenderSelect.getSelectedKey().trim();
 
+    this._clearValidationStates(oFirstNameInput, oLastNameInput, oEmailInput, oGenderSelect);
+
     if (!sFirstName || !sLastName || !sEmail || !sGender) 
     {
-      MessageToast.show("Bitte alle Felder ausfüllen");
+      const requiredMessage = translate("fieldRequired", "Bitte dieses Feld ausfüllen");
+      if (!sFirstName)
+      {
+        oFirstNameInput.setValueState("Error");
+        oFirstNameInput.setValueStateText(requiredMessage);
+      }
+      if (!sLastName)
+      {
+        oLastNameInput.setValueState("Error");
+        oLastNameInput.setValueStateText(requiredMessage);
+      }
+      if (!sEmail)
+      {
+        oEmailInput.setValueState("Error");
+        oEmailInput.setValueStateText(requiredMessage);
+      }
+      if (!sGender)
+      {
+        oGenderSelect.setValueState("Error");
+        oGenderSelect.setValueStateText(requiredMessage);
+      }
+      MessageToast.show(
+        translate("validationPleaseFillAllFields", "Bitte alle Pflichtfelder ausfüllen")
+      );
       return;
     }
     if (!this._isValidEmail(sEmail)) 
     {
-      MessageToast.show("Bitte eine gültige E-Mail-Adresse eingeben");
       oEmailInput.setValueState("Error");
+      oEmailInput.setValueStateText(
+        translate("validationInvalidEmail", "Bitte eine gültige E-Mail-Adresse eingeben")
+      );
+      MessageToast.show(
+        translate("validationInvalidEmail", "Bitte eine gültige E-Mail-Adresse eingeben")
+      );
       return;
     }
     oEmailInput.setValueState("None");
@@ -156,7 +188,7 @@ export default class PersonDetail extends Controller
       //refresh the list
       const persons = await PersonService.getPersons();
       oModel.setProperty("/persons", persons);
-      oModel.setProperty("/selectedPersonId", oSaved.id);
+      oModel.setProperty("/selectedPersonIds", [oSaved.id]);
 
       MessageToast.show("Gespeichert");
       this._router.navTo("list");
@@ -191,4 +223,21 @@ export default class PersonDetail extends Controller
   {
     return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
   }
+
+  /**
+   * Resets validation states for all editable form fields.
+   */
+  private _clearValidationStates(
+    oFirstNameInput: Input,
+    oLastNameInput: Input,
+    oEmailInput: Input,
+    oGenderSelect: Select
+  ): void
+  {
+    oFirstNameInput.setValueState("None");
+    oLastNameInput.setValueState("None");
+    oEmailInput.setValueState("None");
+    oGenderSelect.setValueState("None");
+  }
+
 }

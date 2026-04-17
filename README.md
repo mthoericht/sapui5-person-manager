@@ -1,11 +1,12 @@
 # SAPUI5 Person Manager (TypeScript)
 
-A small SAPUI5 freestyle app for managing people with TypeScript and a mock API.
+A small SAPUI5 freestyle app for managing people with TypeScript and a local data API.
 
 ## Features
 
 - Person list with detail view
 - Create, edit, and delete
+- Multi-select in list via checkboxes, including batch delete
 - Required gender field in the detail form (`M`, `W`, `D`)
 - Sorting directly from table headers (asc/desc per column)
 - German/English language switch
@@ -14,14 +15,14 @@ A small SAPUI5 freestyle app for managing people with TypeScript and a mock API.
 
 - SAPUI5 (OpenUI5), TypeScript
 - UI5 Tooling (`@ui5/cli`, `ui5-tooling-transpile`)
-- `json-server` as mock backend
+- `json-server` as local data backend
 - ESLint
 
 ## Project Structure
 
 - `webapp/` app code (views, controller, model, API, CSS)
-- `mock/db.json` mock data
-- `mock/schema.json` JSON schema for editor validation
+- `data/db.json` local data
+- `data/schema.json` JSON schema for editor validation
 
 ## Prerequisites
 
@@ -45,12 +46,12 @@ npm run start:all
 
 ## Important Scripts
 
-- `npm run start`  
+- `npm run start:webapp`  
   Starts the UI5 development server on port `8080`.
-- `npm run mock`  
-  Starts the `json-server` mock API on port `3001` using `mock/db.json`.
+- `npm run start:backend`  
+  Starts the `json-server` API on port `3001` using `data/db.json`.
 - `npm run start:all`  
-  Runs UI and mock API together in parallel for local development.
+  Runs webapp and backend API together in parallel for local development.
 - `npm run clean`  
   Removes local build and dependency artifacts (`dist`, `node_modules`).
 - `npm run install:clean`  
@@ -69,8 +70,15 @@ npm run start:all
 - Files:
   - `webapp/i18n/i18n_de.properties`
   - `webapp/i18n/i18n.properties`
+- Shared i18n helper: `webapp/util/i18nUtil.ts` (`createTranslator`)
 - Configuration uses `supportedLocales: ["de", ""]` and `fallbackLocale: ""`.
 - Selected language is stored in `localStorage["appLanguage"]`.
+
+## Accessibility (WCAG)
+
+- The app is developed with WCAG principles in mind (semantic structure, keyboard accessibility, and form feedback).
+- Current implementation includes page heading semantics (`h1`) and field-level validation feedback (`ValueState`/`ValueStateText`) for required fields.
+- Manual accessibility testing (keyboard and screen reader) is still required.
 
 ## Implementation Notes
 

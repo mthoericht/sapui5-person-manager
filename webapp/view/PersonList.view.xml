@@ -28,13 +28,32 @@
 				<Table
 					id="personTable"
 					items="{/persons}"
-					mode="SingleSelectLeft"
+					mode="MultiSelect"
 					selectionChange="onSelectionChange"
 				>
 					<headerToolbar>
 						<OverflowToolbar>
-							<Title text="{i18n>personsTitle}" />
+							<Title text="{i18n>personsTitle}" level="H1" />
 							<ToolbarSpacer />
+							<Label text="{i18n>sortBy}" labelFor="sortFieldSelect" />
+							<Select
+								id="sortFieldSelect"
+								selectedKey="{/sortField}"
+								change="onSortFieldChange"
+								width="10rem"
+							>
+								<items>
+									<core:Item key="firstName" text="{i18n>sortFirstName}" />
+									<core:Item key="lastName" text="{i18n>sortLastName}" />
+									<core:Item key="email" text="{i18n>sortEmail}" />
+								</items>
+							</Select>
+							<Button
+								icon="{= ${/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending' }"
+								tooltip="{= ${/sortDescending} ? ${i18n>sortDirectionDesc} : ${i18n>sortDirectionAsc} }"
+								ariaHasPopup="None"
+								press="onSortDirectionToggle"
+							/>
 							<SearchField
 								id="personSearchField"
 								class="personSearchField"
@@ -53,55 +72,19 @@
 								text="{i18n>delete}"
 								type="Negative"
 								press="onDelete"
-								enabled="{= !!${/selectedPersonId} }"
+								enabled="{= ${/selectedPersonIds}.length > 0 }"
 							/>
 						</OverflowToolbar>
 					</headerToolbar>
 					<columns>
 						<Column>
-							<HBox alignItems="Center" renderType="Bare">
-								<Text text="{i18n>firstName}" />
-								<Button
-									type="Transparent"
-									icon="{= ${/sortField} === 'firstName' ? (${/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending') : 'sap-icon://sort' }"
-									tooltip="{i18n>sortByFirstName}"
-									press="onHeaderSortPress"
-								>
-									<customData>
-										<core:CustomData key="sortField" value="firstName" />
-									</customData>
-								</Button>
-							</HBox>
+							<Text text="{i18n>firstName}" />
 						</Column>
 						<Column>
-							<HBox alignItems="Center" renderType="Bare">
-								<Text text="{i18n>lastName}" />
-								<Button
-									type="Transparent"
-									icon="{= ${/sortField} === 'lastName' ? (${/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending') : 'sap-icon://sort' }"
-									tooltip="{i18n>sortByLastName}"
-									press="onHeaderSortPress"
-								>
-									<customData>
-										<core:CustomData key="sortField" value="lastName" />
-									</customData>
-								</Button>
-							</HBox>
+							<Text text="{i18n>lastName}" />
 						</Column>
 						<Column>
-							<HBox alignItems="Center" renderType="Bare">
-								<Text text="{i18n>email}" />
-								<Button
-									type="Transparent"
-									icon="{= ${/sortField} === 'email' ? (${/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending') : 'sap-icon://sort' }"
-									tooltip="{i18n>sortByEmail}"
-									press="onHeaderSortPress"
-								>
-									<customData>
-										<core:CustomData key="sortField" value="email" />
-									</customData>
-								</Button>
-							</HBox>
+							<Text text="{i18n>email}" />
 						</Column>
 					</columns>
 					<items>

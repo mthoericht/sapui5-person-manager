@@ -33,7 +33,7 @@ export default class Component extends UIComponent
     const oModel = new JSONModel({
       persons: [] as Person[],
       selectedPerson: null as Person | null,
-      selectedPersonId: "",
+      selectedPersonIds: [] as string[],
       isCreating: false,
       busy: false,
       currentLanguage: initialLanguage,

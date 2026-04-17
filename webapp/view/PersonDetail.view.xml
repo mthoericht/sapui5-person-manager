@@ -11,6 +11,10 @@
 		busy="{/busy}"
 	>
 		<VBox class="sapUiResponsiveMargin sapUiContentPadding">
+			<Title
+				text="{= ${/isCreating} ? ${i18n>createTitle} : ${i18n>detailTitle} }"
+				level="H1"
+			/>
 			<Label text="{i18n>personId}" labelFor="detailIdText" />
 			<Text id="detailIdText" text="{/selectedPerson/id}" wrapping="false" />
 
