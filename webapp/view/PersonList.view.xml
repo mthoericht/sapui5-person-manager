@@ -32,7 +32,7 @@
 					selectionChange="onSelectionChange"
 				>
 					<headerToolbar>
-						<OverflowToolbar>
+						<Toolbar class="personListToolbar">
 							<Title text="{i18n>personsTitle}" level="H1" />
 							<ToolbarSpacer />
 							<Label text="{i18n>sortBy}" labelFor="sortFieldSelect" />
@@ -54,27 +54,23 @@
 								ariaHasPopup="None"
 								press="onSortDirectionToggle"
 							/>
-							<SearchField
-								id="personSearchField"
-								class="personSearchField"
-								placeholder="{i18n>searchPlaceholder}"
-								liveChange="onSearch"
-								search="onSearch"
-							>
-								<layoutData>
-									<OverflowToolbarLayoutData
-										shrinkable="true"
-									/>
-								</layoutData>
-							</SearchField>
-							<Button text="{i18n>create}" type="Emphasized" press="onCreate" />
-							<Button
-								text="{i18n>delete}"
-								type="Negative"
-								press="onDelete"
-								enabled="{= ${/selectedPersonIds}.length > 0 }"
-							/>
-						</OverflowToolbar>
+							<HBox class="personToolbarActions" alignItems="Center" renderType="Bare">
+								<SearchField
+									id="personSearchField"
+									class="personSearchField"
+									placeholder="{i18n>searchPlaceholder}"
+									liveChange="onSearch"
+									search="onSearch"
+								/>
+								<Button text="{i18n>create}" type="Emphasized" press="onCreate" />
+								<Button
+									text="{i18n>delete}"
+									type="Negative"
+									press="onDelete"
+									enabled="{= ${/selectedPersonIds}.length > 0 }"
+								/>
+							</HBox>
+						</Toolbar>
 					</headerToolbar>
 					<columns>
 						<Column>

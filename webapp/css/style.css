@@ -1,3 +1,11 @@
+/* minimum width for the app to be usable */
+html,
+body,
+.sapUiBody,
+#content {
+  min-width: 460px;
+}
+
 .personListContainer {
   /* max-width: 960px; */
   margin-left: auto;
@@ -5,23 +13,38 @@
   min-width: 420px;
 }
 
-
-.personSearchField 
-{
-  width: 25rem;
+/* put the search field and buttons at the right position of the toolbar with little space between them */
+.personToolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Portrait mode on mobile */
-@media (max-width: 600px) and (orientation: portrait) 
-{
-  /*
-  .personSearchField 
-  {
-     width: 11rem;
-  }*/
+.personToolbarActions .personSearchField {
+  width: 23rem;
+}
 
-  .personListContainer
-  {
+/* Wrap toolbar search on narrower screens / mobile */
+@media (max-width: 1000px) {
+  .personListToolbar.sapMTB {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    height: auto;
+  }
+
+  /* put the search field and buttons at the right position of the toolbar */
+  .personListToolbar .personToolbarActions {
+    flex: 1 0 100%;
+    justify-content: flex-end;
+  }
+
+  .personListToolbar .personToolbarActions .personSearchField {
+    width: 100%;
+  }
+
+  .personListContainer {
+    min-width: 0;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
