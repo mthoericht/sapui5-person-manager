@@ -14,7 +14,7 @@
     }
   },
   "sap.ui": {
-    "technology": "UI5 TypeScript",
+    "technology": "UI5",
     "deviceTypes": {
       "desktop": true,
       "phone": true,
@@ -28,7 +28,7 @@
   },
   "sap.ui5": {
     "dependencies": {
-      "minUI5Version": "1.125",
+      "minUI5Version": "1.147.0",
       "libs": {
         "sap.m": {},
         "sap.ui.core": {},

@@ -51,6 +51,10 @@ npm run start:all
   Starts the `json-server` mock API on port `3001` using `mock/db.json`.
 - `npm run start:all`  
   Runs UI and mock API together in parallel for local development.
+- `npm run clean`  
+  Removes local build and dependency artifacts (`dist`, `node_modules`).
+- `npm run install:clean`  
+  Performs a clean reinstall (`npm run clean && npm install`).
 - `npm run lint`  
   Runs ESLint checks for the frontend source files.
 - `npm run lint:fix`  
