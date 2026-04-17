@@ -44,13 +44,49 @@
 					</headerToolbar>
 					<columns>
 						<Column>
-							<Text text="{i18n>firstName}" />
+							<HBox alignItems="Center" renderType="Bare">
+								<Text text="{i18n>firstName}" />
+								<Button
+									type="Transparent"
+									icon="{= ${/sortField} === 'firstName' ? (${/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending') : 'sap-icon://sort' }"
+									tooltip="{i18n>sortByFirstName}"
+									press="onHeaderSortPress"
+								>
+									<customData>
+										<core:CustomData key="sortField" value="firstName" />
+									</customData>
+								</Button>
+							</HBox>
 						</Column>
 						<Column>
-							<Text text="{i18n>lastName}" />
+							<HBox alignItems="Center" renderType="Bare">
+								<Text text="{i18n>lastName}" />
+								<Button
+									type="Transparent"
+									icon="{= ${/sortField} === 'lastName' ? (${/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending') : 'sap-icon://sort' }"
+									tooltip="{i18n>sortByLastName}"
+									press="onHeaderSortPress"
+								>
+									<customData>
+										<core:CustomData key="sortField" value="lastName" />
+									</customData>
+								</Button>
+							</HBox>
 						</Column>
 						<Column>
-							<Text text="{i18n>email}" />
+							<HBox alignItems="Center" renderType="Bare">
+								<Text text="{i18n>email}" />
+								<Button
+									type="Transparent"
+									icon="{= ${/sortField} === 'email' ? (${/sortDescending} ? 'sap-icon://sort-descending' : 'sap-icon://sort-ascending') : 'sap-icon://sort' }"
+									tooltip="{i18n>sortByEmail}"
+									press="onHeaderSortPress"
+								>
+									<customData>
+										<core:CustomData key="sortField" value="email" />
+									</customData>
+								</Button>
+							</HBox>
 						</Column>
 					</columns>
 					<items>

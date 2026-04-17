@@ -16,17 +16,17 @@
     },
     {
       "id": "p3",
-      "firstName": "Ali",
+      "firstName": "Dimitri",
       "lastName": "Khan",
-      "email": "ali.khan@example.com",
+      "email": "dimitri.khan@example.com",
       "gender": "M"
     },
     {
-      "firstName": "Elena",
+      "id": "VmPJIIN2M9U",
+      "firstName": "Anna",
       "lastName": "Kutscher",
       "email": "elena.test@beispiel.de",
-      "gender": "W",
-      "id": "VmPJIIN2M9U"
+      "gender": "W"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

@@ -1,14 +1,18 @@
 import Controller from "sap/ui/core/mvc/Controller";
 import type Event from "sap/ui/base/Event";
+import type Element from "sap/ui/core/Element";
 import type { Person } from "../model/Person";
 import UIComponent from "sap/ui/core/UIComponent";
 import type Router from "sap/ui/core/routing/Router";
 import JSONModel from "sap/ui/model/json/JSONModel";
+import Sorter from "sap/ui/model/Sorter";
+import type ListBinding from "sap/ui/model/ListBinding";
 import PersonService from "../model/PersonService";
 import MessageBox from "sap/m/MessageBox";
 import MessageToast from "sap/m/MessageToast";
 import Localization from "sap/base/i18n/Localization";
 import ResourceModel from "sap/ui/model/resource/ResourceModel";
+import Table from "sap/m/Table";
 
 export default class PersonList extends Controller 
 {
@@ -20,6 +24,10 @@ export default class PersonList extends Controller
   public onInit(): void 
   {
     this._router = UIComponent.getRouterFor(this);
+    const oModel = this._getAppModel();
+    oModel?.setProperty("/sortField", oModel.getProperty("/sortField") || "lastName");
+    oModel?.setProperty("/sortDescending", !!oModel.getProperty("/sortDescending"));
+    this._applyTableSorting();
   }
 
   /**
@@ -95,6 +103,38 @@ export default class PersonList extends Controller
   }
 
   /**
+   * Toggles sorting on the clicked table header field.
+   *
+   * @param oEvent Header sort button press event.
+   */
+  public onHeaderSortPress(oEvent: Event): void
+  {
+    const oModel = this._getAppModel();
+    if (!oModel)
+    {
+      return;
+    }
+
+    const headerSortButton = oEvent.getSource() as Element;
+    // Field requested by the clicked header button; fallback keeps sorting deterministic.
+    const requestedSortField = (headerSortButton.data("sortField") as string | undefined) ?? "lastName";
+    const activeSortField = (oModel.getProperty("/sortField") as string) || "lastName";
+    const currentDescending = !!oModel.getProperty("/sortDescending");
+
+    if (requestedSortField === activeSortField)
+    {
+      oModel.setProperty("/sortDescending", !currentDescending);
+    }
+    else
+    {
+      oModel.setProperty("/sortField", requestedSortField);
+      oModel.setProperty("/sortDescending", false);
+    }
+
+    this._applyTableSorting();
+  }
+
+  /**
    * Deletes the currently selected person after confirmation and refreshes the list.
    *
    * @returns A promise that resolves when the delete flow is finished.
@@ -135,6 +175,7 @@ export default class PersonList extends Controller
       await PersonService.deletePerson(selectedPersonId);
       const persons = await PersonService.getPersons();
       oModel.setProperty("/persons", persons);
+      this._applyTableSorting();
       oModel.setProperty("/selectedPersonId", "");
       MessageToast.show("Person gelöscht");
     }
@@ -156,5 +197,25 @@ export default class PersonList extends Controller
   private _getAppModel(): JSONModel | undefined
   {
     return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
+  }
+
+  /**
+   * Sorts table items by configured field and direction.
+   */
+  private _applyTableSorting(): void
+  {
+    const oModel = this._getAppModel();
+    const oTable = this.byId("personTable") as Table | undefined;
+    const oBinding = oTable?.getBinding("items") as ListBinding | undefined;
+
+    if (!oModel || !oBinding)
+    {
+      return;
+    }
+
+    const sortField = (oModel.getProperty("/sortField") as string) || "lastName";
+    const sortDescending = !!oModel.getProperty("/sortDescending");
+    
+    oBinding.sort(new Sorter(sortField, sortDescending));
   }
 }
