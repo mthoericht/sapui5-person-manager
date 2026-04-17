@@ -2,6 +2,7 @@ import Controller from "sap/ui/core/mvc/Controller";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageToast from "sap/m/MessageToast";
 import Input from "sap/m/Input";
+import Select from "sap/m/Select";
 import PersonService from "../model/PersonService";
 import type { Person, PersonDraft } from "../model/Person";
 import UIComponent from "sap/ui/core/UIComponent";
@@ -51,6 +52,7 @@ export default class PersonDetail extends Controller
         firstName: "",
         lastName: "",
         email: "",
+        gender: "M",
       } as PersonDraft);
       return;
     }
@@ -60,7 +62,10 @@ export default class PersonDetail extends Controller
     {
       const oPerson = await PersonService.getPerson(sId);
       oModel.setProperty("/isCreating", false);
-      oModel.setProperty("/selectedPerson", oPerson);
+      oModel.setProperty("/selectedPerson", {
+        ...oPerson,
+        gender: oPerson.gender || "M",
+      });
     }
     catch (e) 
     {
@@ -105,12 +110,14 @@ export default class PersonDetail extends Controller
     const oFirstNameInput = this.byId("firstNameInput") as Input;
     const oLastNameInput = this.byId("lastNameInput") as Input;
     const oEmailInput = this.byId("emailInput") as Input;
+    const oGenderSelect = this.byId("genderSelect") as Select;
 
     const sFirstName = oFirstNameInput.getValue().trim();
     const sLastName = oLastNameInput.getValue().trim();
     const sEmail = oEmailInput.getValue().trim();
+    const sGender = oGenderSelect.getSelectedKey().trim();
 
-    if (!sFirstName || !sLastName || !sEmail) 
+    if (!sFirstName || !sLastName || !sEmail || !sGender) 
     {
       MessageToast.show("Bitte alle Felder ausfüllen");
       return;
@@ -127,6 +134,7 @@ export default class PersonDetail extends Controller
       firstName: sFirstName,
       lastName: sLastName,
       email: sEmail,
+      gender: sGender,
     };
 
     oModel.setProperty("/busy", true);
