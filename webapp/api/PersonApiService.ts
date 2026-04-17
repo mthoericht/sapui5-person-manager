@@ -1,17 +1,17 @@
-import type { Person, PersonDraft } from "./Person";
-import ApiClient from "../api/ApiClient";
+import type { Person, PersonDraft } from "../model/Person";
+import ApiClient from "./ApiClient";
 
 const API_BASE = "http://localhost:3001";
 const apiClient = new ApiClient(API_BASE);
 
-export default class PersonService 
+export default class PersonApiService
 {
   /**
    * Fetches all persons.
    *
    * @returns List of persons.
    */
-  public static async getPersons(): Promise<Person[]> 
+  public static async getPersons(): Promise<Person[]>
   {
     return apiClient.get<Person[]>("/persons");
   }
@@ -22,7 +22,7 @@ export default class PersonService
    * @param id Person ID.
    * @returns The matching person.
    */
-  public static async getPerson(id: string): Promise<Person> 
+  public static async getPerson(id: string): Promise<Person>
   {
     return apiClient.get<Person>(`/persons/${id}`);
   }
@@ -33,7 +33,7 @@ export default class PersonService
    * @param updated Complete person object to persist.
    * @returns The updated person from the backend.
    */
-  public static async updatePerson(updated: Person): Promise<Person> 
+  public static async updatePerson(updated: Person): Promise<Person>
   {
     return apiClient.put<Person>(`/persons/${updated.id}`, updated);
   }
@@ -44,7 +44,7 @@ export default class PersonService
    * @param draft Person data without ID.
    * @returns The created person including its ID.
    */
-  public static async createPerson(draft: PersonDraft): Promise<Person> 
+  public static async createPerson(draft: PersonDraft): Promise<Person>
   {
     return apiClient.post<Person>("/persons", draft);
   }
@@ -55,7 +55,7 @@ export default class PersonService
    * @param id Person ID.
    * @returns A promise that resolves when deletion succeeds.
    */
-  public static async deletePerson(id: string): Promise<void> 
+  public static async deletePerson(id: string): Promise<void>
   {
     await apiClient.delete(`/persons/${id}`);
   }

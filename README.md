@@ -20,9 +20,23 @@ A small SAPUI5 freestyle app for managing people with TypeScript and a local dat
 
 ## Project Structure
 
-- `webapp/` app code (views, controller, model, API, CSS)
-- `data/db.json` local data
-- `data/schema.json` JSON schema for editor validation
+- `webapp/controller/`
+  - `PersonList.controller.ts`: list interactions, table state, delete flow, route-based list loading
+  - `PersonDetail.controller.ts`: detail form orchestration and UI mapping for validation feedback
+- `webapp/service/`
+  - `LanguageService.ts`: language normalization, i18n model application, persistence
+  - `PersonService.ts`: shared person workflows (`load`, `save+refresh`, `delete+refresh`)
+- `webapp/validation/`
+  - `personValidation.ts`: domain validation for `PersonDraft`
+- `webapp/util/`
+  - `i18nUtil.ts`: translator helper
+  - `modelStateUtil.ts`: busy-state helper (`runWithBusy`)
+  - `personListQueryUtil.ts`: search filter and sorter builders
+- `webapp/api/`: technical API adapters (`ApiClient.ts`, `PersonApiService.ts`)
+- `webapp/model/`: domain types (`Person.ts`)
+- `webapp/view/`: XML views (`PersonList.view.xml`, `PersonDetail.view.xml`)
+- `data/db.json`: local API data
+- `data/schema.json`: JSON schema for editor validation
 
 ## Prerequisites
 
@@ -71,6 +85,7 @@ npm run start:all
   - `webapp/i18n/i18n_de.properties`
   - `webapp/i18n/i18n.properties`
 - Shared i18n helper: `webapp/util/i18nUtil.ts` (`createTranslator`)
+- Central language flow: `webapp/service/LanguageService.ts` (`getInitialLanguage`, `applyLanguage`)
 - Configuration uses `supportedLocales: ["de", ""]` and `fallbackLocale: ""`.
 - Selected language is stored in `localStorage["appLanguage"]`.
 
@@ -79,9 +94,3 @@ npm run start:all
 - The app is developed with WCAG principles in mind (semantic structure, keyboard accessibility, and form feedback).
 - Current implementation includes page heading semantics (`h1`) and field-level validation feedback (`ValueState`/`ValueStateText`) for required fields.
 - Manual accessibility testing (keyboard and screen reader) is still required.
-
-## Implementation Notes
-
-- Sort state is stored in the app model: `/sortField`, `/sortDescending`.
-- Sorting is applied in `webapp/controller/PersonList.controller.ts` via `sap/ui/model/Sorter`.
-- Gender is represented in `webapp/model/Person.ts` as `gender: string`.

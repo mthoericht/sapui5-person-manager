@@ -1,22 +1,20 @@
-import Controller from "sap/ui/core/mvc/Controller";
 import type Event from "sap/ui/base/Event";
 import type { Person } from "../model/Person";
 import UIComponent from "sap/ui/core/UIComponent";
 import type Router from "sap/ui/core/routing/Router";
-import JSONModel from "sap/ui/model/json/JSONModel";
-import Sorter from "sap/ui/model/Sorter";
 import type ListBinding from "sap/ui/model/ListBinding";
-import Filter from "sap/ui/model/Filter";
-import FilterOperator from "sap/ui/model/FilterOperator";
-import PersonService from "../model/PersonService";
+import JSONModel from "sap/ui/model/json/JSONModel";
+import Controller from "sap/ui/core/mvc/Controller";
 import MessageBox from "sap/m/MessageBox";
 import MessageToast from "sap/m/MessageToast";
-import Localization from "sap/base/i18n/Localization";
-import ResourceModel from "sap/ui/model/resource/ResourceModel";
 import Table from "sap/m/Table";
 import { createTranslator } from "../util/i18nUtil";
+import { runWithBusy } from "../util/modelStateUtil";
+import { applyLanguage, normalizeLanguage } from "../service/LanguageService";
+import { buildPersonSearchFilter, buildPersonSorter } from "../util/personListQueryUtil";
+import { deletePersonsAndRefreshList, loadPersons } from "../service/PersonService";
 
-export default class PersonList extends Controller 
+export default class PersonList extends Controller
 {
   private _router!: Router;
 
@@ -26,7 +24,12 @@ export default class PersonList extends Controller
   public onInit(): void 
   {
     this._router = UIComponent.getRouterFor(this);
-    const oModel = this._getAppModel();
+    const listRoute = this._router.getRoute("list");
+    if (listRoute)
+    {
+      listRoute.attachPatternMatched(this._onListRouteMatched, this);
+    }
+    const oModel = this.getAppModel();
     oModel?.setProperty("/sortField", oModel.getProperty("/sortField") || "lastName");
     oModel?.setProperty("/sortDescending", !!oModel.getProperty("/sortDescending"));
     oModel?.setProperty("/searchQuery", (oModel.getProperty("/searchQuery") as string) || "");
@@ -57,7 +60,7 @@ export default class PersonList extends Controller
    */
   public onSelectionChange(oEvent: Event): void 
   {
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
 
     if (!oModel) 
     {
@@ -88,18 +91,16 @@ export default class PersonList extends Controller
    */
   public onLanguageChange(oEvent: Event): void
   {
-    const selectedLanguage = ((oEvent as any).getParameter("selectedItem")?.getKey?.() ?? "de") as string;
-    Localization.setLanguage(selectedLanguage);
-    const i18nModel = new ResourceModel({
-      bundleName: "person.app.i18n.i18n",
-      bundleLocale: selectedLanguage,
-      supportedLocales: ["de", ""],
-      fallbackLocale: "",
-    });
-    this.getOwnerComponent()?.setModel(i18nModel, "i18n");
-    window.localStorage.setItem("appLanguage", selectedLanguage);
+    const selectedLanguage = normalizeLanguage(
+      ((oEvent as any).getParameter("selectedItem")?.getKey?.() ?? "de") as string
+    );
+    const component = this.getOwnerComponent();
+    if (component)
+    {
+      applyLanguage(component, selectedLanguage);
+    }
 
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
     oModel?.setProperty("/currentLanguage", selectedLanguage);
   }
 
@@ -110,7 +111,7 @@ export default class PersonList extends Controller
    */
   public onSortFieldChange(oEvent: Event): void
   {
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
     if (!oModel)
     {
       return;
@@ -127,7 +128,7 @@ export default class PersonList extends Controller
    */
   public onSortDirectionToggle(): void
   {
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
     if (!oModel)
     {
       return;
@@ -145,7 +146,7 @@ export default class PersonList extends Controller
    */
   public onSearch(oEvent: Event): void
   {
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
     if (!oModel)
     {
       return;
@@ -167,7 +168,7 @@ export default class PersonList extends Controller
    */
   public async onDelete(): Promise<void> 
   {
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
     if (!oModel) 
     {
       return;
@@ -199,38 +200,24 @@ export default class PersonList extends Controller
       return;
     }
 
-    oModel.setProperty("/busy", true);
-
-    try 
+    try
     {
-      await Promise.all(selectedPersonIds.map((id) => PersonService.deletePerson(id)));
-      const persons = await PersonService.getPersons();
-      oModel.setProperty("/persons", persons);
-      this._applyTableState();
-      oModel.setProperty("/selectedPersonIds", []);
-      const successText = selectedPersonIds.length === 1
-        ? translate("deleteSuccessSingle", "Person gelöscht")
-        : translate("deleteSuccessMultiple", "Personen gelöscht");
-      MessageToast.show(successText);
+      await runWithBusy(oModel, "list", async () =>
+      {
+        const persons = await deletePersonsAndRefreshList(selectedPersonIds);
+        oModel.setProperty("/persons", persons);
+        this._applyTableState();
+        oModel.setProperty("/selectedPersonIds", []);
+        const successText = selectedPersonIds.length === 1
+          ? translate("deleteSuccessSingle", "Person gelöscht")
+          : translate("deleteSuccessMultiple", "Personen gelöscht");
+        MessageToast.show(successText);
+      });
     }
-    catch (e) 
+    catch (e)
     {
       MessageToast.show((e as Error).message ?? "Fehler beim Löschen");
     }
-    finally 
-    {
-      oModel.setProperty("/busy", false);
-    }
-  }
-
-  /**
-   * Returns the shared application JSON model from the owner component.
-   *
-   * @returns The app model, if available.
-   */
-  private _getAppModel(): JSONModel | undefined
-  {
-    return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
   }
 
   /**
@@ -238,7 +225,7 @@ export default class PersonList extends Controller
    */
   private _applyTableState(): void
   {
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
     const oTable = this.byId("personTable") as Table | undefined;
     const oBinding = oTable?.getBinding("items") as ListBinding | undefined;
 
@@ -248,46 +235,50 @@ export default class PersonList extends Controller
     }
 
     const query = (oModel.getProperty("/searchQuery") as string) || "";
-    oBinding.filter(this._buildSearchFilter(query));
+    oBinding.filter(buildPersonSearchFilter(query));
 
     const sortField = (oModel.getProperty("/sortField") as string) || "lastName";
     const sortDescending = !!oModel.getProperty("/sortDescending");
     
-    oBinding.sort(new Sorter(sortField, sortDescending));
+    oBinding.sort(buildPersonSorter(sortField, sortDescending));
   }
 
   /**
-   * Builds a filter for first name, last name, and email search.
-   *
-   * @param query Search input from the shared application model.
-   * @returns Filter instance or empty filter array.
+   * Loads persons when list route is entered and no data is present yet.
    */
-  private _buildSearchFilter(query: string): Filter[]
+  private async _onListRouteMatched(_event: Event): Promise<void>
   {
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery)
+    const oModel = this.getAppModel();
+    if (!oModel)
     {
-      return [];
+      return;
+    }
+    oModel.setProperty("/selectedPersonIds", []);
+    (this.byId("personTable") as Table | undefined)?.removeSelections(true);
+
+    const persons = (oModel.getProperty("/persons") as Person[] | undefined) ?? [];
+    if (persons.length > 0)
+    {
+      return;
     }
 
-    const searchTerms = trimmedQuery.split(/\s+/).filter(Boolean);
-    const termFilters = searchTerms.map((term) =>
-      new Filter({
-        filters: [
-          new Filter("firstName", FilterOperator.Contains, term),
-          new Filter("lastName", FilterOperator.Contains, term),
-          new Filter("email", FilterOperator.Contains, term),
-        ],
-        //false because we want to match all terms, not just one
-        and: false,
-      })
-    );
+    try
+    {
+      await runWithBusy(oModel, "list", async () =>
+      {
+        const loadedPersons = await loadPersons();
+        oModel.setProperty("/persons", loadedPersons);
+      });
+      this._applyTableState();
+    }
+    catch (e)
+    {
+      MessageToast.show((e as Error).message ?? "Fehler beim Laden der Personen");
+    }
+  }
 
-    return [
-      new Filter({
-        filters: termFilters,
-        and: true,
-      }),
-    ];
+  private getAppModel(): JSONModel | undefined
+  {
+    return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
   }
 }

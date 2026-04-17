@@ -8,7 +8,7 @@
 		title="{= ${/isCreating} ? ${i18n>createTitle} : ${i18n>detailTitle} }"
 		showNavButton="true"
 		navButtonPress="onNavBack"
-		busy="{/busy}"
+		busy="{/detail/busy}"
 	>
 		<VBox class="sapUiResponsiveMargin sapUiContentPadding">
 			<Title
@@ -41,14 +41,14 @@
 					text="{i18n>cancel}"
 					type="Transparent"
 					press="onNavBack"
-					enabled="{= !${/busy} }"
+					enabled="{= !${/detail/busy} }"
 				/>
 				<Button
 					class="sapUiSmallMarginBegin"
 					text="{i18n>save}"
 					type="Emphasized"
 					press="onSave"
-					enabled="{= !${/busy} }"
+					enabled="{= !${/detail/busy} }"
 				/>
 			</HBox>
 		</VBox>

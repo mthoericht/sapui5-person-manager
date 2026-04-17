@@ -1,15 +1,18 @@
-import Controller from "sap/ui/core/mvc/Controller";
-import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageToast from "sap/m/MessageToast";
 import Input from "sap/m/Input";
 import Select from "sap/m/Select";
-import PersonService from "../model/PersonService";
-import type { Person, PersonDraft } from "../model/Person";
 import UIComponent from "sap/ui/core/UIComponent";
+import Controller from "sap/ui/core/mvc/Controller";
+import PersonApiService from "../api/PersonApiService";
+import type { Person, PersonDraft } from "../model/Person";
 import type Router from "sap/ui/core/routing/Router";
+import JSONModel from "sap/ui/model/json/JSONModel";
 import { createTranslator } from "../util/i18nUtil";
+import { runWithBusy } from "../util/modelStateUtil";
+import { validatePersonDraft } from "../validation/personValidation";
+import { savePersonAndRefreshList } from "../service/PersonService";
 
-export default class PersonDetail extends Controller 
+export default class PersonDetail extends Controller
 {
   private _router!: Router;
 
@@ -40,7 +43,7 @@ export default class PersonDetail extends Controller
       return;
     }
 
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
 
     if (!oModel) 
     {
@@ -58,24 +61,22 @@ export default class PersonDetail extends Controller
       return;
     }
 
-    oModel.setProperty("/busy", true);
-    try 
+    try
     {
-      const oPerson = await PersonService.getPerson(sId);
-      oModel.setProperty("/isCreating", false);
-      oModel.setProperty("/selectedPerson", {
-        ...oPerson,
-        gender: oPerson.gender || "M",
+      await runWithBusy(oModel, "detail", async () =>
+      {
+        const oPerson = await PersonApiService.getPerson(sId);
+        oModel.setProperty("/isCreating", false);
+        oModel.setProperty("/selectedPerson", {
+          ...oPerson,
+          gender: oPerson.gender || "M",
+        });
       });
     }
-    catch (e) 
+    catch (e)
     {
       MessageToast.show((e as Error).message ?? "Fehler beim Laden der Person");
       oModel.setProperty("/selectedPerson", null);
-    }
-    finally 
-    {
-      oModel.setProperty("/busy", false);
     }
   }
 
@@ -94,7 +95,7 @@ export default class PersonDetail extends Controller
    */
   public async onSave(): Promise<void> 
   {
-    const oModel = this._getAppModel();
+    const oModel = this.getAppModel();
     if (!oModel) 
     {
       MessageToast.show("Model nicht verfügbar");
@@ -118,50 +119,6 @@ export default class PersonDetail extends Controller
     const sLastName = oLastNameInput.getValue().trim();
     const sEmail = oEmailInput.getValue().trim();
     const sGender = oGenderSelect.getSelectedKey().trim();
-
-    this._clearValidationStates(oFirstNameInput, oLastNameInput, oEmailInput, oGenderSelect);
-
-    if (!sFirstName || !sLastName || !sEmail || !sGender) 
-    {
-      const requiredMessage = translate("fieldRequired", "Bitte dieses Feld ausfüllen");
-      if (!sFirstName)
-      {
-        oFirstNameInput.setValueState("Error");
-        oFirstNameInput.setValueStateText(requiredMessage);
-      }
-      if (!sLastName)
-      {
-        oLastNameInput.setValueState("Error");
-        oLastNameInput.setValueStateText(requiredMessage);
-      }
-      if (!sEmail)
-      {
-        oEmailInput.setValueState("Error");
-        oEmailInput.setValueStateText(requiredMessage);
-      }
-      if (!sGender)
-      {
-        oGenderSelect.setValueState("Error");
-        oGenderSelect.setValueStateText(requiredMessage);
-      }
-      MessageToast.show(
-        translate("validationPleaseFillAllFields", "Bitte alle Pflichtfelder ausfüllen")
-      );
-      return;
-    }
-    if (!this._isValidEmail(sEmail)) 
-    {
-      oEmailInput.setValueState("Error");
-      oEmailInput.setValueStateText(
-        translate("validationInvalidEmail", "Bitte eine gültige E-Mail-Adresse eingeben")
-      );
-      MessageToast.show(
-        translate("validationInvalidEmail", "Bitte eine gültige E-Mail-Adresse eingeben")
-      );
-      return;
-    }
-    oEmailInput.setValueState("None");
-
     const payload: PersonDraft = {
       firstName: sFirstName,
       lastName: sLastName,
@@ -169,59 +126,63 @@ export default class PersonDetail extends Controller
       gender: sGender,
     };
 
-    oModel.setProperty("/busy", true);
-    try 
-    {
-      if (!isCreating && !(oSelected as Person).id) 
-      {
-        throw new Error("Fehlende Person-ID für Update");
-      }
-      const oSaved = isCreating
-        ? await PersonService.createPerson(payload)
-        : await PersonService.updatePerson({
-          id: (oSelected as Person).id,
-          ...payload,
-        });
-      oModel.setProperty("/selectedPerson", oSaved);
-      oModel.setProperty("/isCreating", false);
-      
-      //refresh the list
-      const persons = await PersonService.getPersons();
-      oModel.setProperty("/persons", persons);
-      oModel.setProperty("/selectedPersonIds", [oSaved.id]);
+    this._clearValidationStates(oFirstNameInput, oLastNameInput, oEmailInput, oGenderSelect);
+    const validationResult = validatePersonDraft(payload);
 
-      MessageToast.show("Gespeichert");
-      this._router.navTo("list");
+    if (validationResult.missingFields.length > 0)
+    {
+      const requiredMessage = translate("fieldRequired", "Bitte dieses Feld ausfüllen");
+      if (validationResult.missingFields.includes("firstName"))
+      {
+        this.setControlError(oFirstNameInput, requiredMessage);
+      }
+      if (validationResult.missingFields.includes("lastName"))
+      {
+        this.setControlError(oLastNameInput, requiredMessage);
+      }
+      if (validationResult.missingFields.includes("email"))
+      {
+        this.setControlError(oEmailInput, requiredMessage);
+      }
+      if (validationResult.missingFields.includes("gender"))
+      {
+        this.setControlError(oGenderSelect, requiredMessage);
+      }
+      MessageToast.show(
+        translate("validationPleaseFillAllFields", "Bitte alle Pflichtfelder ausfüllen")
+      );
+      return;
     }
-    catch (e) 
+    if (validationResult.hasInvalidEmail)
+    {
+      this.setControlError(
+        oEmailInput,
+        translate("validationInvalidEmail", "Bitte eine gültige E-Mail-Adresse eingeben")
+      );
+      MessageToast.show(
+        translate("validationInvalidEmail", "Bitte eine gültige E-Mail-Adresse eingeben")
+      );
+      return;
+    }
+
+    try
+    {
+      await runWithBusy(oModel, "detail", async () =>
+      {
+        const { savedPerson: oSaved, persons } = await savePersonAndRefreshList(oSelected, payload, isCreating);
+        oModel.setProperty("/selectedPerson", oSaved);
+        oModel.setProperty("/isCreating", false);
+        oModel.setProperty("/persons", persons);
+        oModel.setProperty("/selectedPersonIds", []);
+
+        MessageToast.show("Gespeichert");
+        this._router.navTo("list");
+      });
+    }
+    catch (e)
     {
       MessageToast.show((e as Error).message ?? "Fehler beim Speichern");
     }
-    finally 
-    {
-      oModel.setProperty("/busy", false);
-    }
-  }
-
-  /**
-   * Checks whether an email address has a basic valid format.
-   *
-   * @param email Email string to validate.
-   * @returns True when the email format is valid.
-   */
-  private _isValidEmail(email: string): boolean 
-  {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  /**
-   * Returns the shared application JSON model from the owner component.
-   *
-   * @returns The app model, if available.
-   */
-  private _getAppModel(): JSONModel | undefined
-  {
-    return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
   }
 
   /**
@@ -234,10 +195,27 @@ export default class PersonDetail extends Controller
     oGenderSelect: Select
   ): void
   {
-    oFirstNameInput.setValueState("None");
-    oLastNameInput.setValueState("None");
-    oEmailInput.setValueState("None");
-    oGenderSelect.setValueState("None");
+    this.clearControlState(oFirstNameInput);
+    this.clearControlState(oLastNameInput);
+    this.clearControlState(oEmailInput);
+    this.clearControlState(oGenderSelect);
+  }
+
+  private getAppModel(): JSONModel | undefined
+  {
+    return this.getOwnerComponent()?.getModel() as JSONModel | undefined;
+  }
+
+  private setControlError(control: Input | Select, message: string): void
+  {
+    control.setValueState("Error");
+    control.setValueStateText(message);
+  }
+
+  private clearControlState(control: Input | Select): void
+  {
+    control.setValueState("None");
+    control.setValueStateText("");
   }
 
 }
