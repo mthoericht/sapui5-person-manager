@@ -9,6 +9,20 @@
 		showNavButton="false"
 		busy="{/busy}"
 	>
+		<headerContent>
+			<Label text="{i18n>language}" labelFor="languageSelect" />
+			<Select
+				id="languageSelect"
+				selectedKey="{/currentLanguage}"
+				change="onLanguageChange"
+				width="9rem"
+			>
+				<items>
+					<core:Item key="de" text="{i18n>languageGerman}" />
+					<core:Item key="en" text="{i18n>languageEnglish}" />
+				</items>
+			</Select>
+		</headerContent>
 		<content>
 			<VBox class="personListContainer sapUiResponsiveMargin sapUiContentPadding">
 				<Table
@@ -21,18 +35,19 @@
 						<OverflowToolbar>
 							<Title text="{i18n>personsTitle}" />
 							<ToolbarSpacer />
-							<Label text="{i18n>language}" labelFor="languageSelect" />
-							<Select
-								id="languageSelect"
-								selectedKey="{/currentLanguage}"
-								change="onLanguageChange"
-								width="9rem"
+							<SearchField
+								id="personSearchField"
+								class="personSearchField"
+								placeholder="{i18n>searchPlaceholder}"
+								liveChange="onSearch"
+								search="onSearch"
 							>
-								<items>
-									<core:Item key="de" text="{i18n>languageGerman}" />
-									<core:Item key="en" text="{i18n>languageEnglish}" />
-								</items>
-							</Select>
+								<layoutData>
+									<OverflowToolbarLayoutData
+										shrinkable="true"
+									/>
+								</layoutData>
+							</SearchField>
 							<Button text="{i18n>create}" type="Emphasized" press="onCreate" />
 							<Button
 								text="{i18n>delete}"

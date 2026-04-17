@@ -7,6 +7,8 @@ import type Router from "sap/ui/core/routing/Router";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Sorter from "sap/ui/model/Sorter";
 import type ListBinding from "sap/ui/model/ListBinding";
+import Filter from "sap/ui/model/Filter";
+import FilterOperator from "sap/ui/model/FilterOperator";
 import PersonService from "../model/PersonService";
 import MessageBox from "sap/m/MessageBox";
 import MessageToast from "sap/m/MessageToast";
@@ -27,7 +29,8 @@ export default class PersonList extends Controller
     const oModel = this._getAppModel();
     oModel?.setProperty("/sortField", oModel.getProperty("/sortField") || "lastName");
     oModel?.setProperty("/sortDescending", !!oModel.getProperty("/sortDescending"));
-    this._applyTableSorting();
+    oModel?.setProperty("/searchQuery", (oModel.getProperty("/searchQuery") as string) || "");
+    this._applyTableState();
   }
 
   /**
@@ -131,7 +134,29 @@ export default class PersonList extends Controller
       oModel.setProperty("/sortDescending", false);
     }
 
-    this._applyTableSorting();
+    this._applyTableState();
+  }
+
+  /**
+   * Applies a table filter for first name, last name, and email.
+   *
+   * @param oEvent Search event from the list toolbar.
+   */
+  public onSearch(oEvent: Event): void
+  {
+    const oModel = this._getAppModel();
+    if (!oModel)
+    {
+      return;
+    }
+
+    const query =
+      ((oEvent as any).getParameter("query") as string | undefined)
+      ?? ((oEvent as any).getParameter("newValue") as string | undefined)
+      ?? "";
+
+    oModel.setProperty("/searchQuery", query.trim());
+    this._applyTableState();
   }
 
   /**
@@ -175,7 +200,7 @@ export default class PersonList extends Controller
       await PersonService.deletePerson(selectedPersonId);
       const persons = await PersonService.getPersons();
       oModel.setProperty("/persons", persons);
-      this._applyTableSorting();
+      this._applyTableState();
       oModel.setProperty("/selectedPersonId", "");
       MessageToast.show("Person gelöscht");
     }
@@ -200,9 +225,9 @@ export default class PersonList extends Controller
   }
 
   /**
-   * Sorts table items by configured field and direction.
+   * Applies active search filter and sorting to table items.
    */
-  private _applyTableSorting(): void
+  private _applyTableState(): void
   {
     const oModel = this._getAppModel();
     const oTable = this.byId("personTable") as Table | undefined;
@@ -213,9 +238,47 @@ export default class PersonList extends Controller
       return;
     }
 
+    const query = (oModel.getProperty("/searchQuery") as string) || "";
+    oBinding.filter(this._buildSearchFilter(query));
+
     const sortField = (oModel.getProperty("/sortField") as string) || "lastName";
     const sortDescending = !!oModel.getProperty("/sortDescending");
     
     oBinding.sort(new Sorter(sortField, sortDescending));
+  }
+
+  /**
+   * Builds a filter for first name, last name, and email search.
+   *
+   * @param query Search input from the shared application model.
+   * @returns Filter instance or empty filter array.
+   */
+  private _buildSearchFilter(query: string): Filter[]
+  {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery)
+    {
+      return [];
+    }
+
+    const searchTerms = trimmedQuery.split(/\s+/).filter(Boolean);
+    const termFilters = searchTerms.map((term) =>
+      new Filter({
+        filters: [
+          new Filter("firstName", FilterOperator.Contains, term),
+          new Filter("lastName", FilterOperator.Contains, term),
+          new Filter("email", FilterOperator.Contains, term),
+        ],
+        //false because we want to match all terms, not just one
+        and: false,
+      })
+    );
+
+    return [
+      new Filter({
+        filters: termFilters,
+        and: true,
+      }),
+    ];
   }
 }
