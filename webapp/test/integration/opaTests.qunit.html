@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>OPA Integration Tests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="https://openui5.hana.ondemand.com/resources/sap/ui/thirdparty/qunit-2.css" />
+    <script src="https://openui5.hana.ondemand.com/resources/sap/ui/thirdparty/qunit-2.js"></script>
+    <script>
+      QUnit.config.autostart = false;
+    </script>
+
+    <script
+      id="sap-ui-bootstrap"
+      src="https://openui5.hana.ondemand.com/resources/sap-ui-core.js"
+      data-sap-ui-theme="sap_horizon"
+      data-sap-ui-compatVersion="edge"
+      data-sap-ui-async="true"
+      data-sap-ui-resourceroots='{"person.app": "../../"}'
+      data-sap-ui-on-init="module:person/app/test/integration/opaTests.qunit"
+    ></script>
+  </head>
+  <body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+  </body>
+</html>

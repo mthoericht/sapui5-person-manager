@@ -1,0 +1,11 @@
+{
+  "modules": [
+    "puppeteer"
+  ],
+  "screenshot": ".png",
+  "scripts": true,
+  "traces": [
+    "console",
+    "network"
+  ]
+}

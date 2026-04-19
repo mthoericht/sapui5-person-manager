@@ -8,11 +8,19 @@
     "clean": "rm -rf node_modules dist",
     "start:all": "concurrently \"npm:start:backend\" \"npm:start:webapp\"",
     "start:webapp": "ui5 serve --port 8080 -o index.html",
+    "start:webapp:test": "ui5 serve --port 8080",
     "start:backend": "json-server --watch data/db.json --port 3001",
     "build": "ui5 build --clean-dest",
     "ts-typecheck": "tsc --noEmit",
     "lint": "eslint webapp --ext .ts,.js",
-    "lint:fix": "eslint webapp --ext .ts,.js --fix"
+    "lint:fix": "eslint webapp --ext .ts,.js --fix",
+    "test:unit": "npm run test:unit:runner",
+    "test:unit:watch": "chokidar \"webapp/**/*.{ts,js,xml,json}\" -i \"webapp/test/resources/**\" -c \"npm run test:unit\"",
+    "test:unit:ci": "wait-on -t 120000 http://localhost:8080/test/unit/unitTests.qunit.html && npm run test:unit:runner",
+    "test:unit:runner": "node scripts/run-qunit.mjs http://localhost:8080/test/unit/unitTests.qunit.html",
+    "test:integration": "npm run test:integration:runner",
+    "test:integration:ci": "wait-on -t 120000 http://localhost:8080/test/integration/opaTests.qunit.html && npm run test:integration:runner",
+    "test:integration:runner": "node scripts/run-qunit.mjs http://localhost:8080/test/integration/opaTests.qunit.html"
   },
   "repository": {
     "type": "git",
@@ -31,10 +39,13 @@
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
     "@ui5/cli": "^4.0.51",
+    "chokidar-cli": "^3.0.0",
     "concurrently": "^9.2.1",
     "eslint": "^9.38.0",
     "json-server": "^1.0.0-beta.15",
+    "puppeteer": "^24.41.0",
     "typescript": "^6.0.2",
-    "ui5-tooling-transpile": "^3.11.0"
+    "ui5-tooling-transpile": "^3.11.0",
+    "wait-on": "^9.0.5"
   }
 }

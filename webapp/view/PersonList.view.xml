@@ -62,7 +62,7 @@
 									liveChange="onSearch"
 									search="onSearch"
 								/>
-								<Button text="{i18n>create}" type="Emphasized" press="onCreate" />
+								<Button id="createPersonButton" text="{i18n>create}" type="Emphasized" press="onCreate" />
 								<Button
 									text="{i18n>delete}"
 									type="Negative"

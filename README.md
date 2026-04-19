@@ -76,8 +76,65 @@ npm run start:all
   Runs ESLint with automatic fixes where possible.
 - `npm run ts-typecheck`  
   Executes TypeScript type checking (`tsc --noEmit`) without generating build output.
+- `npm run test:unit`  
+  Runs QUnit unit tests in a headless browser (expects the UI5 server on `http://localhost:8080` to be reachable).
+- `npm run test:unit:ci`  
+  Waits until the QUnit test page is reachable on `http://localhost:8080` and then runs the same headless QUnit tests (recommended for CI pipelines when the UI5 server is started separately).
+- `npm run test:unit:watch`  
+  Watches `webapp/` files and re-runs unit tests on each change (requires a reachable UI5 server on `http://localhost:8080`).
+- `npm run test:integration`  
+  Runs OPA5 integration tests in a headless browser (expects the UI5 server on `http://localhost:8080` to be reachable).
+- `npm run test:integration:ci`  
+  Waits until the OPA test page is reachable on `http://localhost:8080` and then runs the same headless integration tests (recommended for CI pipelines when the UI5 server is started separately).
 - `npm run build`  
   Creates a production build in `dist/`.
+
+## Unit Tests (QUnit)
+
+- Test entry page: `webapp/test/unit/unitTests.qunit.html`
+- Test bootstrap module: `webapp/test/unit/unitTests.qunit.ts`
+- Test files are authored in TypeScript (`*.qunit.ts`).
+- Node-based test runner script: `scripts/run-qunit.mjs` (uses `puppeteer`).
+
+Typical usage:
+
+```bash
+# local development (if UI5 server already runs on port 8080)
+npm run test:unit
+
+# CI execution (expects UI5 server to become available on port 8080)
+npm run test:unit:ci
+
+# re-run unit tests on file changes
+npm run test:unit:watch
+```
+
+## Integration Tests (OPA5)
+
+- Test entry page: `webapp/test/integration/opaTests.qunit.html`
+- Test bootstrap module: `webapp/test/integration/opaTests.qunit.ts`
+- Journeys live under `webapp/test/integration/journeys/`
+- Backend calls are mocked via `window.fetch` in the journey setup (no `json-server` writes).
+  - Typical mocked endpoints: `GET/POST/PUT http://localhost:3001/persons...`
+
+Typical usage:
+
+```bash
+# local development (if UI5 server already runs on port 8080)
+npm run test:integration
+
+# CI execution (expects UI5 server to become available on port 8080)
+npm run test:integration:ci
+```
+
+Troubleshooting:
+
+- `ERR_CONNECTION_REFUSED` for `http://localhost:8080/test/unit/unitTests.qunit.html`  
+  The UI5 server is not reachable on port `8080`. Start it with `npm run start:webapp` (or `npm run start:all`) before running `npm run test:unit`.
+- `wait-on` times out in `npm run test:unit:ci`  
+  The QUnit test page did not become reachable within the configured timeout. Ensure the UI5 server is started as part of your CI job (for example `npm run start:webapp:test` in a separate step/process).
+- `EADDRINUSE: Port 8080 is already in use`  
+  Another process already listens on `8080`. This is usually fine when running `npm run test:unit` against an already running server. If needed, stop the other process or use a dedicated test port.
 
 ## i18n (Short)
 

@@ -1,0 +1,5 @@
+⏲ run      : 27.417ms
+⏲ require  : 153.31ms
+⏲ launch   : 1.245s
+⏲ scripts  : 2.744ms
+⏲ navigate : 342.893ms

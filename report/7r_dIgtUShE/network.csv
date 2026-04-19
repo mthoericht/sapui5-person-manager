@@ -1,0 +1,7 @@
+timestamp	method	url	status
+1776437741337	GET	http://localhost:56084/test/unit/unitTests.qunit.html	200
+1776437741408	GET	https://openui5.hana.ondemand.com/resources/sap/ui/thirdparty/qunit-2.css	200
+1776437741446	GET	https://openui5.hana.ondemand.com/resources/sap-ui-core.js	200
+1776437741594	GET	https://openui5.hana.ondemand.com/resources/sap/ui/core/library-preload.js	200
+1776437741600	POST	http://localhost:56084/_/addTestPages	200
+1776437741603	GET	http://localhost:56084/favicon.ico	404

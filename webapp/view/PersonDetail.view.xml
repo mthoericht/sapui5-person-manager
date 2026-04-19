@@ -44,6 +44,7 @@
 					enabled="{= !${/detail/busy} }"
 				/>
 				<Button
+					id="savePersonButton"
 					class="sapUiSmallMarginBegin"
 					text="{i18n>save}"
 					type="Emphasized"
