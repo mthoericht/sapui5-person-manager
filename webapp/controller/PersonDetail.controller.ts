@@ -3,14 +3,15 @@ import Input from "sap/m/Input";
 import Select from "sap/m/Select";
 import UIComponent from "sap/ui/core/UIComponent";
 import Controller from "sap/ui/core/mvc/Controller";
-import PersonApiService from "../api/PersonApiService";
-import type { Person, PersonDraft } from "../model/Person";
+import type { Person, PersonDraft, Gender } from "../model/Person";
 import type Router from "sap/ui/core/routing/Router";
+import type Route from "sap/ui/core/routing/Route";
+import type Event from "sap/ui/base/Event";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { createTranslator } from "../util/i18nUtil";
 import { runWithBusy } from "../util/modelStateUtil";
 import { validatePersonDraft } from "../validation/personValidation";
-import { savePersonAndRefreshList } from "../service/PersonService";
+import { getPersonById, savePersonAndRefreshList } from "../service/PersonService";
 
 export default class PersonDetail extends Controller
 {
@@ -25,7 +26,7 @@ export default class PersonDetail extends Controller
     const oRoute = this._router.getRoute("detail");
     if (oRoute) 
     {
-      oRoute.attachPatternMatched(this._onRouteMatched as any, this);
+      (oRoute as Route).attachPatternMatched(this._onRouteMatched, this);
     }
   }
 
@@ -35,9 +36,10 @@ export default class PersonDetail extends Controller
    * @param oEvent Route match event.
    * @returns A promise that resolves when route handling is completed.
    */
-  private async _onRouteMatched(oEvent: any): Promise<void> 
+  private async _onRouteMatched(oEvent: Event): Promise<void> 
   {
-    const sId = oEvent.getParameter("arguments")?.id as string | undefined;
+    const params = oEvent.getParameters() as { arguments?: Record<string, string> };
+    const sId = params.arguments?.id;
     if (!sId) 
     {
       return;
@@ -49,6 +51,9 @@ export default class PersonDetail extends Controller
     {
       return;
     }
+
+    this._resetFormState();
+
     if (sId === "new") 
     {
       oModel.setProperty("/isCreating", true);
@@ -56,7 +61,7 @@ export default class PersonDetail extends Controller
         firstName: "",
         lastName: "",
         email: "",
-        gender: "M",
+        gender: "M" as Gender,
       } as PersonDraft);
       return;
     }
@@ -65,17 +70,18 @@ export default class PersonDetail extends Controller
     {
       await runWithBusy(oModel, "detail", async () =>
       {
-        const oPerson = await PersonApiService.getPerson(sId);
+        const oPerson = await getPersonById(sId);
         oModel.setProperty("/isCreating", false);
         oModel.setProperty("/selectedPerson", {
           ...oPerson,
-          gender: oPerson.gender || "M",
+          gender: oPerson.gender || ("M" as Gender),
         });
       });
     }
     catch (e)
     {
-      MessageToast.show((e as Error).message ?? "Fehler beim Laden der Person");
+      const translate = createTranslator(this.getOwnerComponent());
+      MessageToast.show((e as Error).message ?? translate("errorLoadingPerson", "Fehler beim Laden der Person"));
       oModel.setProperty("/selectedPerson", null);
     }
   }
@@ -95,30 +101,30 @@ export default class PersonDetail extends Controller
    */
   public async onSave(): Promise<void> 
   {
+    const translate = createTranslator(this.getOwnerComponent());
     const oModel = this.getAppModel();
     if (!oModel) 
     {
-      MessageToast.show("Model nicht verfügbar");
+      MessageToast.show(translate("modelNotAvailable", "Model nicht verfügbar"));
       return;
     }
     const oSelected = oModel.getProperty("/selectedPerson") as Person | PersonDraft | null;
     if (!oSelected) 
     {
-      MessageToast.show("Keine Person ausgewählt");
+      MessageToast.show(translate("noPersonSelected", "Keine Person ausgewählt"));
       return;
     }
     const isCreating = !!oModel.getProperty("/isCreating");
 
-    const oFirstNameInput: Input = this.byId("firstNameInput") as Input;
-    const oLastNameInput: Input = this.byId("lastNameInput") as Input;
-    const oEmailInput: Input = this.byId("emailInput") as Input;
-    const oGenderSelect: Select = this.byId("genderSelect") as Select;
-    const translate = createTranslator(this.getOwnerComponent());
+    const oFirstNameInput = this.byId("firstNameInput") as Input;
+    const oLastNameInput = this.byId("lastNameInput") as Input;
+    const oEmailInput = this.byId("emailInput") as Input;
+    const oGenderSelect = this.byId("genderSelect") as Select;
 
     const sFirstName = oFirstNameInput.getValue().trim();
     const sLastName = oLastNameInput.getValue().trim();
     const sEmail = oEmailInput.getValue().trim();
-    const sGender = oGenderSelect.getSelectedKey().trim();
+    const sGender = oGenderSelect.getSelectedKey().trim() as Gender;
     const payload: PersonDraft = {
       firstName: sFirstName,
       lastName: sLastName,
@@ -175,13 +181,13 @@ export default class PersonDetail extends Controller
         oModel.setProperty("/persons", persons);
         oModel.setProperty("/selectedPersonIds", []);
 
-        MessageToast.show("Gespeichert");
+        MessageToast.show(translate("savedSuccess", "Gespeichert"));
         this._router.navTo("list");
       });
     }
     catch (e)
     {
-      MessageToast.show((e as Error).message ?? "Fehler beim Speichern");
+      MessageToast.show((e as Error).message ?? translate("errorSaving", "Fehler beim Speichern"));
     }
   }
 
@@ -199,6 +205,22 @@ export default class PersonDetail extends Controller
     this.clearControlState(oLastNameInput);
     this.clearControlState(oEmailInput);
     this.clearControlState(oGenderSelect);
+  }
+
+  /**
+   * Resets form control ValueStates when navigating between detail views.
+   */
+  private _resetFormState(): void
+  {
+    const oFirstNameInput = this.byId("firstNameInput") as Input | undefined;
+    const oLastNameInput = this.byId("lastNameInput") as Input | undefined;
+    const oEmailInput = this.byId("emailInput") as Input | undefined;
+    const oGenderSelect = this.byId("genderSelect") as Select | undefined;
+
+    if (oFirstNameInput) { this.clearControlState(oFirstNameInput); }
+    if (oLastNameInput) { this.clearControlState(oLastNameInput); }
+    if (oEmailInput) { this.clearControlState(oEmailInput); }
+    if (oGenderSelect) { this.clearControlState(oGenderSelect); }
   }
 
   private getAppModel(): JSONModel | undefined

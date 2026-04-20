@@ -211,13 +211,11 @@ sap.ui.define([
     });
 
     controller.onSearch({
-      getParameter: function (name: string)
+      getParameters: function ()
       {
-        if (name === "query")
-        {
-          return "  anna meier  ";
-        }
-        return undefined;
+        return {
+          query: "  anna meier  ",
+        };
       },
     });
 

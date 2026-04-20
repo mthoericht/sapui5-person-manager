@@ -12,6 +12,17 @@ export async function loadPersons(): Promise<Person[]>
 }
 
 /**
+ * Loads a single person by ID from the backend.
+ *
+ * @param id Person ID.
+ * @returns The matching person.
+ */
+export async function getPersonById(id: string): Promise<Person>
+{
+  return PersonApiService.getPerson(id);
+}
+
+/**
  * Saves a person (create or update) and returns refreshed list data.
  *
  * @param selectedPerson Current selected person from app state.

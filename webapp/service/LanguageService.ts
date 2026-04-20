@@ -6,7 +6,7 @@ export type AppLanguage = "de" | "en";
 
 const STORAGE_KEY = "appLanguage";
 const BUNDLE_NAME = "person.app.i18n.i18n";
-const SUPPORTED_LOCALES = ["de", ""];
+const SUPPORTED_LOCALES = ["de", "en", ""];
 const FALLBACK_LOCALE = "";
 
 /**

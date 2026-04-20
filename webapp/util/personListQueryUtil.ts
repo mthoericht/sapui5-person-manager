@@ -1,6 +1,7 @@
 import Sorter from "sap/ui/model/Sorter";
 import Filter from "sap/ui/model/Filter";
 import FilterOperator from "sap/ui/model/FilterOperator";
+import type { PersonSortField } from "../model/Person";
 
 /**
  * Builds a list filter for first name, last name, and email search terms.
@@ -44,7 +45,7 @@ export function buildPersonSearchFilter(query: string): Filter[]
  * @param sortDescending Sorting direction flag.
  * @returns UI5 sorter instance.
  */
-export function buildPersonSorter(sortField: string, sortDescending: boolean): Sorter
+export function buildPersonSorter(sortField: PersonSortField, sortDescending: boolean): Sorter
 {
   return new Sorter(sortField, sortDescending);
 }

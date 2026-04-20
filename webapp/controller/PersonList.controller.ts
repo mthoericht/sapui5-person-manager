@@ -1,13 +1,15 @@
 import type Event from "sap/ui/base/Event";
-import type { Person } from "../model/Person";
+import type { Person, PersonSortField } from "../model/Person";
 import UIComponent from "sap/ui/core/UIComponent";
 import type Router from "sap/ui/core/routing/Router";
+import type Route from "sap/ui/core/routing/Route";
 import type ListBinding from "sap/ui/model/ListBinding";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Controller from "sap/ui/core/mvc/Controller";
 import MessageBox from "sap/m/MessageBox";
 import MessageToast from "sap/m/MessageToast";
 import Table from "sap/m/Table";
+import type Item from "sap/ui/core/Item";
 import { createTranslator } from "../util/i18nUtil";
 import { runWithBusy } from "../util/modelStateUtil";
 import { applyLanguage, normalizeLanguage } from "../service/LanguageService";
@@ -27,10 +29,10 @@ export default class PersonList extends Controller
     const listRoute = this._router.getRoute("list");
     if (listRoute)
     {
-      listRoute.attachPatternMatched(this._onListRouteMatched, this);
+      (listRoute as Route).attachPatternMatched(this._onListRouteMatched, this);
     }
     const oModel = this.getAppModel();
-    oModel?.setProperty("/sortField", oModel.getProperty("/sortField") || "lastName");
+    oModel?.setProperty("/sortField", (oModel.getProperty("/sortField") as PersonSortField | undefined) || "lastName");
     oModel?.setProperty("/sortDescending", !!oModel.getProperty("/sortDescending"));
     oModel?.setProperty("/searchQuery", (oModel.getProperty("/searchQuery") as string) || "");
     this._applyTableState();
@@ -43,7 +45,8 @@ export default class PersonList extends Controller
    */
   public onItemPress(oEvent: Event): void 
   {
-    const oContext = (oEvent.getSource() as any).getBindingContext?.();
+    const oSource = oEvent.getSource() as { getBindingContext?: () => { getObject: () => Person } | undefined };
+    const oContext = oSource.getBindingContext?.();
     if (!oContext) 
     {
       return;
@@ -67,7 +70,7 @@ export default class PersonList extends Controller
       return;
     }
 
-    const oTable = (oEvent.getSource() as Table | undefined);
+    const oTable = oEvent.getSource() as Table | undefined;
     const selectedIds = (oTable?.getSelectedContexts?.() ?? [])
       .map((context) => context.getObject() as Person)
       .map((person) => person.id)
@@ -91,9 +94,8 @@ export default class PersonList extends Controller
    */
   public onLanguageChange(oEvent: Event): void
   {
-    const selectedLanguage = normalizeLanguage(
-      ((oEvent as any).getParameter("selectedItem")?.getKey?.() ?? "de") as string
-    );
+    const params = oEvent.getParameters() as { selectedItem?: Item };
+    const selectedLanguage = normalizeLanguage(params.selectedItem?.getKey?.() ?? "de");
     const component = this.getOwnerComponent();
     if (component)
     {
@@ -117,8 +119,8 @@ export default class PersonList extends Controller
       return;
     }
 
-    const selectedSortField =
-      ((oEvent as any).getParameter("selectedItem")?.getKey?.() as string | undefined) ?? "lastName";
+    const params = oEvent.getParameters() as { selectedItem?: Item };
+    const selectedSortField = (params.selectedItem?.getKey?.() as PersonSortField | undefined) ?? "lastName";
     oModel.setProperty("/sortField", selectedSortField);
     this._applyTableState();
   }
@@ -152,9 +154,19 @@ export default class PersonList extends Controller
       return;
     }
 
-    const query =
-      ((oEvent as any).getParameter("query") as string | undefined)
-      ?? ((oEvent as any).getParameter("newValue") as string | undefined)
+    // cast the event to an Event with a getParameters method that returns an object with a query and newValue property
+    const searchEvent = oEvent as Event & {getParameters?: () => { query?: string; newValue?: string };
+      getParameter?: (name: string) => unknown;
+    };
+    // UI5 events can expose values either as a full parameter bag (`getParameters`)
+    // or as single lookups (`getParameter`), depending on source/stub context.
+    const searchParams = searchEvent.getParameters?.() as { query?: string; newValue?: string } | undefined;
+
+    // Prefer explicit query, then live-typing value, then fall back to empty string.
+    const query = searchParams?.query
+      ?? searchParams?.newValue
+      ?? (searchEvent.getParameter?.("query") as string | undefined)
+      ?? (searchEvent.getParameter?.("newValue") as string | undefined)
       ?? "";
 
     oModel.setProperty("/searchQuery", query.trim());
@@ -191,7 +203,7 @@ export default class PersonList extends Controller
       MessageBox.confirm(confirmText, {
         actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
         emphasizedAction: MessageBox.Action.CANCEL,
-        onClose: (action) => resolve(action === MessageBox.Action.OK),
+        onClose: (action: string | null) => resolve(action === MessageBox.Action.OK),
       });
     });
 
@@ -216,7 +228,7 @@ export default class PersonList extends Controller
     }
     catch (e)
     {
-      MessageToast.show((e as Error).message ?? "Fehler beim Löschen");
+      MessageToast.show((e as Error).message ?? translate("errorDeleting", "Fehler beim Löschen"));
     }
   }
 
@@ -237,7 +249,7 @@ export default class PersonList extends Controller
     const query = (oModel.getProperty("/searchQuery") as string) || "";
     oBinding.filter(buildPersonSearchFilter(query));
 
-    const sortField = (oModel.getProperty("/sortField") as string) || "lastName";
+    const sortField = (oModel.getProperty("/sortField") as PersonSortField) || "lastName";
     const sortDescending = !!oModel.getProperty("/sortDescending");
     
     oBinding.sort(buildPersonSorter(sortField, sortDescending));
@@ -262,6 +274,8 @@ export default class PersonList extends Controller
       return;
     }
 
+    const translate = createTranslator(this.getOwnerComponent());
+
     try
     {
       await runWithBusy(oModel, "list", async () =>
@@ -273,7 +287,7 @@ export default class PersonList extends Controller
     }
     catch (e)
     {
-      MessageToast.show((e as Error).message ?? "Fehler beim Laden der Personen");
+      MessageToast.show((e as Error).message ?? translate("errorLoadingPersons", "Fehler beim Laden der Personen"));
     }
   }
 
